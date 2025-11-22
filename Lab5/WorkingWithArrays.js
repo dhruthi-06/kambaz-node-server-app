@@ -7,9 +7,9 @@ let todos = [
 ];
 
 export default function WorkingWithArrays(app) {
-  // ----------------------------
-  // GET ALL TODOS / FILTERED
-  // ----------------------------
+  // ---------------------------------------------------------
+  // GET ALL TODOS  /lab5/todos
+  // ---------------------------------------------------------
   const getTodos = (req, res) => {
     const { completed } = req.query;
     if (completed !== undefined) {
@@ -19,18 +19,18 @@ export default function WorkingWithArrays(app) {
     res.json(todos);
   };
 
-  // ----------------------------
-  // GET TODO BY ID
-  // ----------------------------
+  // ---------------------------------------------------------
+  // GET TODO BY ID /lab5/todos/:id
+  // ---------------------------------------------------------
   const getTodoById = (req, res) => {
     const id = parseInt(req.params.id);
     const todo = todos.find((t) => t.id === id);
     res.json(todo);
   };
 
-  // ----------------------------
-  // CREATE NEW TODO (GET)
-  // ----------------------------
+  // ---------------------------------------------------------
+  // OLD CREATE ROUTE (GET) /lab5/todos/create
+  // ---------------------------------------------------------
   const createNewTodo = (req, res) => {
     const newTodo = {
       id: new Date().getTime(),
@@ -42,9 +42,9 @@ export default function WorkingWithArrays(app) {
     res.json(todos);
   };
 
-  // ----------------------------
-  // DELETE TODO (GET)
-  // ----------------------------
+  // ---------------------------------------------------------
+  // OLD DELETE ROUTE (GET) /lab5/todos/:id/delete
+  // ---------------------------------------------------------
   const removeTodo = (req, res) => {
     const id = parseInt(req.params.id);
     const index = todos.findIndex((t) => t.id === id);
@@ -54,9 +54,9 @@ export default function WorkingWithArrays(app) {
     res.json(todos);
   };
 
-  // ----------------------------
-  // UPDATE TITLE (GET)
-  // ----------------------------
+  // ---------------------------------------------------------
+  // OLD UPDATE ROUTES (GET)
+  // ---------------------------------------------------------
   const updateTodoTitle = (req, res) => {
     const { id, title } = req.params;
     const todo = todos.find((t) => t.id === parseInt(id));
@@ -64,9 +64,6 @@ export default function WorkingWithArrays(app) {
     res.json(todos);
   };
 
-  // ----------------------------
-  // UPDATE DESCRIPTION (GET)
-  // ----------------------------
   const updateTodoDescription = (req, res) => {
     const { id, description } = req.params;
     const todo = todos.find((t) => t.id === parseInt(id));
@@ -74,9 +71,6 @@ export default function WorkingWithArrays(app) {
     res.json(todos);
   };
 
-  // ----------------------------
-  // UPDATE COMPLETED (GET)
-  // ----------------------------
   const updateTodoCompleted = (req, res) => {
     const { id, completed } = req.params;
     const todo = todos.find((t) => t.id === parseInt(id));
@@ -84,9 +78,61 @@ export default function WorkingWithArrays(app) {
     res.json(todos);
   };
 
-  // ----------------------------
+  // =========================================================
+  // NEW ROUTES (REQUIRED BY LAB 5)
+  // =========================================================
+
+  // ---------------------------------------------------------
+  // NEW CREATE ROUTE (POST) /lab5/todos
+  // ---------------------------------------------------------
+  const postNewTodo = (req, res) => {
+    const newTodo = { ...req.body, id: new Date().getTime() };
+    todos.push(newTodo);
+    res.json(newTodo);
+  };
+
+  // ---------------------------------------------------------
+  // NEW DELETE ROUTE (DELETE) /lab5/todos/:id
+  // ---------------------------------------------------------
+  const deleteTodo = (req, res) => {
+    const { id } = req.params;
+    const index = todos.findIndex((t) => t.id === parseInt(id));
+
+    if (index === -1) {
+      return res
+        .status(404)
+        .json({ message: `Unable to delete Todo with ID ${id}` });
+    }
+
+    todos.splice(index, 1);
+    res.sendStatus(200);
+  };
+
+  // ---------------------------------------------------------
+  // NEW UPDATE ROUTE (PUT) /lab5/todos/:id
+  // ---------------------------------------------------------
+  const updateTodo = (req, res) => {
+    const { id } = req.params;
+    const index = todos.findIndex((t) => t.id === parseInt(id));
+
+    if (index === -1) {
+      return res
+        .status(404)
+        .json({ message: `Unable to update Todo with ID ${id}` });
+    }
+
+    todos = todos.map((t) =>
+      t.id === parseInt(id) ? { ...t, ...req.body } : t
+    );
+
+    res.sendStatus(200);
+  };
+
+  // =========================================================
   // ROUTES (ORDER MATTERS)
-  // ----------------------------
+  // =========================================================
+
+  // -------- OLD GET ROUTES (KEEP) --------
   app.get("/lab5/todos", getTodos);
   app.get("/lab5/todos/create", createNewTodo);
   app.get("/lab5/todos/:id/delete", removeTodo);
@@ -94,4 +140,9 @@ export default function WorkingWithArrays(app) {
   app.get("/lab5/todos/:id/description/:description", updateTodoDescription);
   app.get("/lab5/todos/:id/completed/:completed", updateTodoCompleted);
   app.get("/lab5/todos/:id", getTodoById);
+
+  // -------- NEW POST / PUT / DELETE ROUTES --------
+  app.post("/lab5/todos", postNewTodo);
+  app.delete("/lab5/todos/:id", deleteTodo);
+  app.put("/lab5/todos/:id", updateTodo);
 }
