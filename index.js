@@ -14,32 +14,38 @@ import EnrollmentsRoutes from "./Kambaz/Enrollments/routes.js";
 
 const app = express();
 
-// ⭐ MUST COME FIRST
-app.use(cors({
-  credentials: true,
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
-}));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+);
 
-// ⭐ SESSION SETUP (must be before routes)
-app.use(session({
-  secret: process.env.SESSION_SECRET || "kambaz-secret",
-  resave: false,
-  saveUninitialized: false,
-}));
-
-// ⭐ JSON parser
 app.use(express.json());
 
-// ⭐ ROUTES
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "kambaz-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false,   // ⭐ REQUIRED FOR LOCALHOST
+      sameSite: "lax", // ⭐ REQUIRED FOR LOCALHOST
+    },
+  })
+);
+
+
 UserRoutes(app, db);
 CourseRoutes(app, db);
-ModulesRoutes(app, db); 
+ModulesRoutes(app, db);
 AssignmentsRoutes(app, db);
-EnrollmentsRoutes(app, db); 
+EnrollmentsRoutes(app, db);
 Hello(app);
 Lab5(app);
 
-// ⭐ ADD THIS
 app.get("/", (req, res) => {
   res.send("Welcome to Full Stack Development!");
 });
