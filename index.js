@@ -39,6 +39,11 @@ EnrollmentsRoutes(app, db);
 Hello(app);
 Lab5(app);
 
+// ⭐ ADD THIS
+app.get("/", (req, res) => {
+  res.send("Welcome to Full Stack Development!");
+});
+
 app.listen(process.env.PORT || 4000, () => {
   console.log("Server running on port 4000");
 });
