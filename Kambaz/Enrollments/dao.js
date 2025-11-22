@@ -1,31 +1,47 @@
 import { v4 as uuidv4 } from "uuid";
 
 export default function EnrollmentsDao(db) {
-  const findEnrollmentsForUser = (userId) => {
-    return db.enrollments.filter((e) => e.user === userId);
-  };
-
-  const enrollUserInCourse = (userId, courseId) => {
-    const exists = db.enrollments.find(
+  function enrollUserInCourse(userId, courseId) {
+    const { enrollments } = db;
+    // Check if already enrolled
+    const existingEnrollment = enrollments.find(
       (e) => e.user === userId && e.course === courseId
     );
-    if (exists) return exists;
+    if (existingEnrollment) {
+      return existingEnrollment;
+    }
+    // Create new enrollment
+    const newEnrollment = {
+      _id: uuidv4(),
+      user: userId,
+      course: courseId,
+      role: "STUDENT",
+    };
+    enrollments.push(newEnrollment);
+    return newEnrollment;
+  }
 
-    const newEn = { _id: uuidv4(), user: userId, course: courseId };
-    db.enrollments.push(newEn);
-    return newEn;
-  };
-
-  const unenrollUserFromCourse = (userId, courseId) => {
-    db.enrollments = db.enrollments.filter(
+  function unenrollUserFromCourse(userId, courseId) {
+    const { enrollments } = db;
+    db.enrollments = enrollments.filter(
       (e) => !(e.user === userId && e.course === courseId)
     );
-    return true;
-  };
+  }
+
+  function findEnrollmentsForUser(userId) {
+    const { enrollments } = db;
+    return enrollments.filter((e) => e.user === userId);
+  }
+
+  function findEnrollmentsForCourse(courseId) {
+    const { enrollments } = db;
+    return enrollments.filter((e) => e.course === courseId);
+  }
 
   return {
-    findEnrollmentsForUser,
     enrollUserInCourse,
     unenrollUserFromCourse,
+    findEnrollmentsForUser,
+    findEnrollmentsForCourse,
   };
 }

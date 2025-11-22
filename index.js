@@ -1,9 +1,8 @@
 import "dotenv/config";
 import express from "express";
-import cors from "cors";
 import session from "express-session";
-
 import Hello from "./Hello.js";
+import cors from "cors";
 import Lab5 from "./Lab5/index.js";
 import db from "./Kambaz/Database/index.js";
 import UserRoutes from "./Kambaz/Users/routes.js";
@@ -16,40 +15,39 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
   })
 );
 
+const sessionOptions = {
+  secret: process.env.SESSION_SECRET || "kambaz",
+  resave: false,
+  saveUninitialized: false,
+};
+
+if (process.env.SERVER_ENV !== "development") {
+  sessionOptions.proxy = true;
+  sessionOptions.cookie = {
+    sameSite: "none",
+    secure: true,
+    domain: process.env.SERVER_URL,
+  };
+}
+
+app.use(session(sessionOptions));
 app.use(express.json());
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "kambaz-secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: true,   
-      sameSite: "none", 
-    },
-  })
-);
-
-
+Lab5(app);
+Hello(app);
 UserRoutes(app, db);
 CourseRoutes(app, db);
 ModulesRoutes(app, db);
 AssignmentsRoutes(app, db);
 EnrollmentsRoutes(app, db);
-Hello(app);
-Lab5(app);
 
-app.get("/", (req, res) => {
-  res.send("Welcome to Full Stack Development!");
-});
+const PORT = process.env.PORT || 4000;
 
-app.listen(process.env.PORT || 4000, () => {
-  console.log("Server running on port 4000");
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
