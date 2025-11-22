@@ -31,8 +31,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,   // ⭐ REQUIRED FOR LOCALHOST
-      sameSite: "lax", // ⭐ REQUIRED FOR LOCALHOST
+      secure: true,   
+      sameSite: "none", 
     },
   })
 );
