@@ -1,46 +1,47 @@
+import model from "./model.js";
 import { v4 as uuidv4 } from "uuid";
 
 export default function UsersDao(db) {
 
-  // Always reference the REAL array
-  const getUsers = () => db.users;
-
+  // CREATE USER
   const createUser = (user) => {
-    const newUser = { ...user, _id: uuidv4() };
-    db.users.push(newUser);             // write directly to db.users
-    return newUser;
-  };
+    // Strip incoming _id if any
+    const { _id, ...userWithoutId } = user;
 
-  const findAllUsers = () => db.users;
-
-  const findUserById = (userId) =>
-    db.users.find((u) => u._id === userId);
-
-  const findUserByUsername = (username) =>
-    db.users.find((u) => u.username === username);
-
-  const findUserByCredentials = (username, password) =>
-    db.users.find(
-      (u) => u.username === username && u.password === password
-    );
-
-  const updateUser = (userId, updates) => {
-    const index = db.users.findIndex((u) => u._id === userId);
-
-    if (index === -1) return null;
-
-    db.users[index] = {
-      ...db.users[index],
-      ...updates,
+    const newUser = {
+      ...userWithoutId,
+      _id: uuidv4(),
     };
 
-    return db.users[index];
+    return model.create(newUser);
   };
 
-  const deleteUser = (userId) => {
-    db.users = db.users.filter((u) => u._id !== userId);
-    return true;
+  const findAllUsers = () => model.find();
+
+  const findUserById = (userId) => model.findById(userId);
+
+  const findUserByUsername = (username) =>
+    model.findOne({ username });
+
+  const findUserByCredentials = (username, password) =>
+    model.findOne({ username, password });
+
+  const updateUser = (userId, user) =>
+    model.updateOne({ _id: userId }, { $set: user });
+
+  const findUsersByRole = (role) => model.find({ role });
+
+  const findUsersByPartialName = (partialName) => {
+    const regex = new RegExp(partialName, "i");
+    return model.find({
+      $or: [
+        { firstName: { $regex: regex } },
+        { lastName: { $regex: regex } },
+      ],
+    });
   };
+
+  const deleteUser = (userId) => model.findByIdAndDelete(userId);
 
   return {
     createUser,
@@ -49,6 +50,8 @@ export default function UsersDao(db) {
     findUserByUsername,
     findUserByCredentials,
     updateUser,
+    findUsersByRole,
+    findUsersByPartialName,
     deleteUser,
   };
 }

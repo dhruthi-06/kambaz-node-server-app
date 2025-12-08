@@ -1,0 +1,19 @@
+import mongoose from "mongoose";
+
+const moduleSchema = new mongoose.Schema(
+  {
+    _id: String,
+    name: String,
+    description: String,
+    lessons: [
+      {
+        _id: String,
+        name: String,
+        description: String,
+      },
+    ],
+  },
+  { _id: false }
+);
+
+export default moduleSchema;

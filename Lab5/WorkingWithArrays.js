@@ -1,5 +1,3 @@
-// Lab5/WorkingWithArrays.js
-
 let todos = [
   { id: 1, title: "Task 1", description: "desc 1", completed: false },
   { id: 2, title: "Task 2", description: "desc 2", completed: true },
@@ -7,9 +5,6 @@ let todos = [
 ];
 
 export default function WorkingWithArrays(app) {
-  // ---------------------------------------------------------
-  // GET ALL TODOS  /lab5/todos
-  // ---------------------------------------------------------
   const getTodos = (req, res) => {
     const { completed } = req.query;
     if (completed !== undefined) {
@@ -19,18 +14,12 @@ export default function WorkingWithArrays(app) {
     res.json(todos);
   };
 
-  // ---------------------------------------------------------
-  // GET TODO BY ID /lab5/todos/:id
-  // ---------------------------------------------------------
   const getTodoById = (req, res) => {
     const id = parseInt(req.params.id);
     const todo = todos.find((t) => t.id === id);
     res.json(todo);
   };
 
-  // ---------------------------------------------------------
-  // OLD CREATE ROUTE (GET) /lab5/todos/create
-  // ---------------------------------------------------------
   const createNewTodo = (req, res) => {
     const newTodo = {
       id: new Date().getTime(),
@@ -42,9 +31,6 @@ export default function WorkingWithArrays(app) {
     res.json(todos);
   };
 
-  // ---------------------------------------------------------
-  // OLD DELETE ROUTE (GET) /lab5/todos/:id/delete
-  // ---------------------------------------------------------
   const removeTodo = (req, res) => {
     const id = parseInt(req.params.id);
     const index = todos.findIndex((t) => t.id === id);
@@ -54,9 +40,6 @@ export default function WorkingWithArrays(app) {
     res.json(todos);
   };
 
-  // ---------------------------------------------------------
-  // OLD UPDATE ROUTES (GET)
-  // ---------------------------------------------------------
   const updateTodoTitle = (req, res) => {
     const { id, title } = req.params;
     const todo = todos.find((t) => t.id === parseInt(id));
@@ -78,22 +61,16 @@ export default function WorkingWithArrays(app) {
     res.json(todos);
   };
 
-  // =========================================================
-  // NEW ROUTES (REQUIRED BY LAB 5)
-  // =========================================================
+  const getCompletedTodos = (req, res) => {
+    res.json(todos.filter((t) => t.completed === true));
+  };
 
-  // ---------------------------------------------------------
-  // NEW CREATE ROUTE (POST) /lab5/todos
-  // ---------------------------------------------------------
   const postNewTodo = (req, res) => {
     const newTodo = { ...req.body, id: new Date().getTime() };
     todos.push(newTodo);
     res.json(newTodo);
   };
 
-  // ---------------------------------------------------------
-  // NEW DELETE ROUTE (DELETE) /lab5/todos/:id
-  // ---------------------------------------------------------
   const deleteTodo = (req, res) => {
     const { id } = req.params;
     const index = todos.findIndex((t) => t.id === parseInt(id));
@@ -108,9 +85,6 @@ export default function WorkingWithArrays(app) {
     res.sendStatus(200);
   };
 
-  // ---------------------------------------------------------
-  // NEW UPDATE ROUTE (PUT) /lab5/todos/:id
-  // ---------------------------------------------------------
   const updateTodo = (req, res) => {
     const { id } = req.params;
     const index = todos.findIndex((t) => t.id === parseInt(id));
@@ -128,11 +102,6 @@ export default function WorkingWithArrays(app) {
     res.sendStatus(200);
   };
 
-  // =========================================================
-  // ROUTES (ORDER MATTERS)
-  // =========================================================
-
-  // -------- OLD GET ROUTES (KEEP) --------
   app.get("/lab5/todos", getTodos);
   app.get("/lab5/todos/create", createNewTodo);
   app.get("/lab5/todos/:id/delete", removeTodo);
@@ -141,7 +110,7 @@ export default function WorkingWithArrays(app) {
   app.get("/lab5/todos/:id/completed/:completed", updateTodoCompleted);
   app.get("/lab5/todos/:id", getTodoById);
 
-  // -------- NEW POST / PUT / DELETE ROUTES --------
+  app.get("/lab5/todos/completed", getCompletedTodos);
   app.post("/lab5/todos", postNewTodo);
   app.delete("/lab5/todos/:id", deleteTodo);
   app.put("/lab5/todos/:id", updateTodo);

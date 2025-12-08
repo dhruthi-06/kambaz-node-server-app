@@ -2,7 +2,9 @@ import "dotenv/config";
 import express from "express";
 import session from "express-session";
 import cors from "cors";
+import mongoose from "mongoose";
 
+// ROUTES
 import Hello from "./Hello.js";
 import Lab5 from "./Lab5/index.js";
 import db from "./Kambaz/Database/index.js";
@@ -11,6 +13,21 @@ import CourseRoutes from "./Kambaz/Courses/routes.js";
 import ModulesRoutes from "./Kambaz/Modules/routes.js";
 import AssignmentsRoutes from "./Kambaz/Assignments/routes.js";
 import EnrollmentsRoutes from "./Kambaz/Enrollments/routes.js";
+
+
+
+const CONNECTION_STRING =
+  process.env.DATABASE_CONNECTION_STRING ||
+  "mongodb://127.0.0.1:27017/kambaz";
+
+console.log("Connecting to MongoDB...");
+mongoose
+  .connect(CONNECTION_STRING)
+  .then(() => console.log("✔ Connected to MongoDB"))
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
+
 
 const app = express();
 
@@ -22,7 +39,6 @@ app.use(
   })
 );
 
-// SESSION FIX 🔥 WORKS IN LOCAL + RENDER + VERCEL
 const isProduction = process.env.NODE_ENV === "production";
 
 app.use(
@@ -32,8 +48,8 @@ app.use(
     saveUninitialized: false,
     proxy: isProduction,
     cookie: {
-      secure: isProduction,                     // 🔥 required for HTTPS
-      sameSite: isProduction ? "none" : "lax",  // 🔥 required for cross-site cookies
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       httpOnly: true,
     },
   })
